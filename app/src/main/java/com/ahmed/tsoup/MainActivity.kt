@@ -1,6 +1,7 @@
 package com.ahmed.tsoup
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
+import com.ahmed.tsoup.ui.theme.Blue
+import com.ahmed.tsoup.ui.theme.Green
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,12 +42,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             TSOUPTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Results(modifier = Modifier.padding(innerPadding), url ="https://1337x.to/search/ghost/1/")
                     Column {
                         TSoup()
                         SearchBar(
                             modifier = Modifier.padding(innerPadding)
                         )
+                        UseClient()
+                        UseVPN()
                     }
                 }
             }
@@ -57,7 +61,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var url = remember { mutableStateOf("") }
     Column(
-        modifier,
+        Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -82,16 +86,70 @@ fun SearchBar(modifier: Modifier = Modifier) {
 @Composable
 fun TSoup(modifier: Modifier = Modifier) {
     Row(
-        modifier
+        Modifier
             .fillMaxWidth()
-            .height(250.dp),
+            .height(350.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        Text(
-            "TSOUP", fontSize = 45.sp, modifier = Modifier
-                .fillMaxWidth()
-                .height(450.dp)
-        )
+        Text("T", color = Green, fontSize = 45.sp)
+        Text(" - SOUP", fontSize = 45.sp)
+    }
+}
+
+@Composable
+fun UseVPN() {
+    val context = LocalContext.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Use VPN or DNS for searching ")
+        TextButton(onClick = {
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://play.google.com/store/apps/details?id=com.cloudflare.onedotonedotonedotone&hl=en_IN")
+            )
+            startActivity(context, intent, null)
+        }) {
+            Text(" ( WARP ) ", color = Blue)
+        }
+    }
+}
+
+@Composable
+fun UseClient() {
+    val context = LocalContext.current
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Use one of these clients")
+        Row {
+            TextButton(onClick = {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=idm.internet.download.manager&hl=en_IN")
+                )
+                startActivity(context, intent, null)
+            }) {
+                Text("  1DM  ", color = Blue)
+            }
+            TextButton(onClick = {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=org.proninyaroslav.libretorrent&hl=en_IN")
+                )
+                startActivity(context, intent, null)
+            }) {
+                Text("  LibTorrent  ", color = Blue)
+            }
+        }
     }
 }

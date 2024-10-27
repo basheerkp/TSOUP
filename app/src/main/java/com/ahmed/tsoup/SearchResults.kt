@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -117,10 +117,10 @@ fun Results(
         } else Column(
             Modifier.width(width), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val boxWidth = width * 0.9f
+            val boxWidth = width * 0.88f
             val textWidth = width * 0.7f
             val iconWidth = width * 0.2f
-            val boxPadding = height * 0.03f
+            val boxPadding = height * 0.01f
             Text(
                 "Showing ${items.size} results for ${url.slice(24..url.length - 4)}",
                 fontSize = 20.sp,
@@ -141,9 +141,8 @@ fun Results(
                                 shape = MaterialTheme.shapes.extraLarge,
                                 color = MaterialTheme.colorScheme.surfaceBright
                             )
-                            .padding(20.dp, 15.dp)
-                            .width(boxWidth)
-                            .wrapContentSize(Alignment.Center, false),
+                            .padding(10.dp, 5.dp)
+                            .width(boxWidth),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(
@@ -162,14 +161,12 @@ fun Results(
                                 }
                                 Spacer(Modifier.height(15.dp))
                                 Row {
-                                    Text("Date: ${item.date}")
-                                    Spacer(Modifier.width(20.dp))
-                                    Text(
-                                        "uploader: ${item.uploader}", color = Color.Blue
-                                    )
+                                    Text(item.date, color = Color(0xFF5A9BD8))
+                                    Text(" BY ", color = Color.White)
+                                    Text(item.uploader, color = Color(0xFF5A9BD8))
                                 }
                             }
-                            Column {
+                            Column(Modifier.fillMaxHeight(), Arrangement.Center) {
                                 IconButton(onClick = {
                                     try {
                                         val intent =
@@ -182,7 +179,7 @@ fun Results(
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
-                                }, Modifier.padding(top = 50.dp)) {
+                                }, Modifier.padding()) {
                                     Icon(
                                         painterResource(R.drawable.ic_launcher_foreground),
                                         "downloader",
@@ -198,6 +195,7 @@ fun Results(
                             }
                         }
                     }
+                    Spacer(Modifier.padding(vertical = height * 0.01f))
                 }
             }
         }

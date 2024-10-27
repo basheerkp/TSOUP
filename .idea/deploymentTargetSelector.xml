@@ -15,10 +15,10 @@
       </SelectionState>
       <SelectionState runConfigName="TSOUP.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-27T10:18:00.811251800Z">
+        <DropdownSelection timestamp="2024-10-27T17:37:13.459139200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=f53d517ff1c7" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\AHMED\.android\avd\Pixel_8.avd" />
             </handle>
           </Target>
         </DropdownSelection>
