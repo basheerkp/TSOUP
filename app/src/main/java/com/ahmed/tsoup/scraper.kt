@@ -15,9 +15,7 @@ suspend fun getResults(url: String): List<TorrentVM> {
     return withContext(Dispatchers.IO) {
         val job1 = CoroutineScope(Dispatchers.IO).launch {
             try {
-                val doc: Document = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0")
-                    .timeout(15000).get()
+                val doc: Document = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(15000).get()
                 var links = doc.select("a[href^=/torrent]")
                 println("running scraper")
                 links.forEach { link ->
@@ -59,16 +57,18 @@ suspend fun getResults(url: String): List<TorrentVM> {
                                         currentItem.date = item.select("span").text()
                                     }
                                 }
-                                withContext(Dispatchers.IO) {
-                                }
+                                withContext(Dispatchers.IO) {}
                             }
-                        } catch (_: IOException) {
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                            returnList.add(TorrentVM(title = "TimeOUT", "", 0, 0, "", "", ""))
                         }
                     }
-                    returnList.add(currentItem)
+                        returnList.add(currentItem)
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
+                returnList.add(TorrentVM(title = "TimeOUT", "", 0, 0, "", "", ""))
             }
         }
         job1.join()

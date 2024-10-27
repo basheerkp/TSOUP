@@ -8,9 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
 
@@ -36,9 +39,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             TSOUPTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SearchBar(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+//                    Results(modifier = Modifier.padding(innerPadding), url ="https://1337x.to/search/ghost/1/")
+                    Column {
+                        TSoup()
+                        SearchBar(
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }
@@ -50,7 +57,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var url = remember { mutableStateOf("") }
     Column(
-        modifier.fillMaxSize(),
+        modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -65,7 +72,26 @@ fun SearchBar(modifier: Modifier = Modifier) {
             },
             Modifier
                 .background(shape = MaterialTheme.shapes.extraLarge, color = Color.Gray)
-                .defaultMinSize(155.dp, 45.dp), enabled = url.value.length > 2
+                .defaultMinSize(155.dp, 45.dp),
+            enabled = url.value.length > 2
         ) { Text("Search") }
+    }
+}
+
+
+@Composable
+fun TSoup(modifier: Modifier = Modifier) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(250.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            "TSOUP", fontSize = 45.sp, modifier = Modifier
+                .fillMaxWidth()
+                .height(450.dp)
+        )
     }
 }

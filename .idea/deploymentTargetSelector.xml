@@ -15,6 +15,14 @@
       </SelectionState>
       <SelectionState runConfigName="TSOUP.app">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2024-10-27T10:18:00.811251800Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=f53d517ff1c7" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>
