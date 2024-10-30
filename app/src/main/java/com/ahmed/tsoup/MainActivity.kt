@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
-import com.ahmed.tsoup.ui.theme.Blue
 import com.ahmed.tsoup.ui.theme.Green
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
 
@@ -115,7 +114,7 @@ fun UseVPN() {
             )
             startActivity(context, intent, null)
         }) {
-            Text(" ( WARP ) ", color = Blue)
+            Text(" ( WARP ) ")
         }
     }
 }
@@ -139,7 +138,7 @@ fun UseClient() {
                 )
                 startActivity(context, intent, null)
             }) {
-                Text("  1DM  ", color = Blue)
+                Text("  1DM  ")
             }
             TextButton(onClick = {
                 val intent = Intent(
@@ -148,7 +147,7 @@ fun UseClient() {
                 )
                 startActivity(context, intent, null)
             }) {
-                Text("  LibTorrent  ", color = Blue)
+                Text("  LibTorrent  ")
             }
         }
     }

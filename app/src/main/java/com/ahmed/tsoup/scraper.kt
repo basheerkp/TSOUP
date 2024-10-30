@@ -64,7 +64,7 @@ suspend fun getResults(url: String): List<TorrentVM> {
                             returnList.add(TorrentVM(title = "TimeOUT", "", 0, 0, "", "", ""))
                         }
                     }
-                        returnList.add(currentItem)
+                    returnList.add(currentItem)
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -73,6 +73,9 @@ suspend fun getResults(url: String): List<TorrentVM> {
         }
         job1.join()
         println("scraping done")
+        if (returnList.isEmpty()) {
+            returnList.add(TorrentVM(title = "None", "", 0, 0, "", "", ""))
+        }
         returnList
 
     }

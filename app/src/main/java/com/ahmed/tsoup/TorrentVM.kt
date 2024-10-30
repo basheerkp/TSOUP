@@ -1,5 +1,7 @@
 package com.ahmed.tsoup
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,15 +19,17 @@ data class TorrentVM(
 )
 
 class TorrentItems : ViewModel() {
-    private val _torrentItems = MutableLiveData<List<TorrentVM>>(emptyList())
-    val torrentItems: LiveData<List<TorrentVM>> = _torrentItems
+    private val _torrentItems = mutableStateListOf<TorrentVM>()
+    val torrentItems: SnapshotStateList<TorrentVM> = _torrentItems
 
 
     fun loadItems(url: String) {
         viewModelScope.launch {
             try {
-                val data = getResults(url)
-                _torrentItems.postValue(data)
+                 getResults(url).forEach{
+                     _torrentItems.add(it)
+                 }
+
             } catch (_: Exception) {
             }
         }
