@@ -42,10 +42,13 @@ class MainActivity : ComponentActivity() {
             TSOUPTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column {
+                        val urlOld = intent.getStringExtra("url")
                         TSoup()
                         SearchBar(
-                            modifier = Modifier.padding(innerPadding)
+                            modifier = Modifier.padding(innerPadding),
+                            url = if (urlOld== null) "" else urlOld
                         )
+
                         UseClient()
                         UseVPN()
                     }
@@ -56,9 +59,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SearchBar(modifier: Modifier = Modifier) {
+fun SearchBar(modifier: Modifier = Modifier, url: String) {
     val context = LocalContext.current
-    var url = remember { mutableStateOf("fat") }
+    var url = remember { mutableStateOf(url) }
     Column(
         Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,

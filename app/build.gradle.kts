@@ -10,19 +10,27 @@ android {
     namespace = "com.ahmed.tsoup"
     compileSdk = 34
 
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("x86", "64", "armeabi-v7a", "arm64-v8a")
+            isUniversalApk = false
+        }
+    }
+
     defaultConfig {
         applicationId = "com.ahmed.tsoup"
         minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        ndk { abiFilters.addAll(mutableSetOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")) }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-                    isShrinkResources = true
+            isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"

@@ -12,6 +12,8 @@ import java.io.IOException
 suspend fun getResults(url: String): Flow<TorrentVM> = flow {
     try {
         val doc: Document = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(15000).get()
+
+
         var links = doc.select("a[href^=/torrent]")
         println("running scraper")
         if (doc.select("td").isEmpty() && doc.text().isNotEmpty())
@@ -48,7 +50,6 @@ suspend fun getResults(url: String): Flow<TorrentVM> = flow {
                         "Date uploaded" -> currentItem.date = item.select("span").text()
                     }
                 }
-
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -57,5 +58,6 @@ suspend fun getResults(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
+        emit(TorrentVM("None", "", 0, 0, "", "", ""))
     }
 }.flowOn(Dispatchers.IO)

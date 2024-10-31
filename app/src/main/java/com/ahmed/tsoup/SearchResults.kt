@@ -111,35 +111,41 @@ fun Results(
                     imageVector = Icons.Outlined.Refresh, null, Modifier.size(25.dp)
                 )
             }
-        } else if (items[0].title == "TimeOUT") {
-            val context = LocalContext.current
 
-            Toast.makeText(
-                context, "VPN/DNS not Enabled", Toast.LENGTH_SHORT
-            ).show()
-
-            Text("ENABLE DNS/VPN")
-
-            TextButton(onClick = {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=com.cloudflare.onedotonedotonedotone")
-                )
-                Toast.makeText(
-                    context, "Opening warp on PlayStore", Toast.LENGTH_SHORT
-                ).show()
-                context.startActivity(intent)
-            }) {
-                Text("Download WARP")
-            }
         } else if (items[0].title == "None") {
             val context = LocalContext.current
+
             Toast.makeText(
                 context, "No Items Found", Toast.LENGTH_SHORT
             ).show()
 
-            Text("THERE WERE NO RESULTS FOR THE QUERY")
+            Text("NO RESULTS FOUND")
 
+            Text("CHECK YOUR CONNECTION / QUERY")
+
+            Row {
+                TextButton(onClick = {
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    intent.putExtra("url", url.slice(24..url.length - 1))
+                    context.startActivity(intent)
+                }) {
+                    Text("Go Back")
+                }
+
+                TextButton(onClick = {
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=com.cloudflare.onedotonedotonedotone")
+                    )
+                    Toast.makeText(
+                        context, "Opening warp on PlayStore", Toast.LENGTH_SHORT
+                    ).show()
+                    context.startActivity(intent)
+                }) {
+                    Text("Download WARP")
+                }
+            }
         } else Column(
             Modifier.width(width), horizontalAlignment = Alignment.CenterHorizontally
         ) {
