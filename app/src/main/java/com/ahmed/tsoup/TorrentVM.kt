@@ -2,8 +2,6 @@ package com.ahmed.tsoup
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
@@ -22,18 +20,13 @@ class TorrentItems : ViewModel() {
     private val _torrentItems = mutableStateListOf<TorrentVM>()
     val torrentItems: SnapshotStateList<TorrentVM> = _torrentItems
 
-
     fun loadItems(url: String) {
         viewModelScope.launch {
-            try {
-                 getResults(url).forEach{
-                     _torrentItems.add(it)
-                 }
-
-            } catch (_: Exception) {
+            getResults(url).collect { item ->
+                _torrentItems.add(item)
             }
-        }
 
+        }
     }
 
 }

@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SearchBar(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var url = remember { mutableStateOf("") }
+    var url = remember { mutableStateOf("fat") }
     Column(
         Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,

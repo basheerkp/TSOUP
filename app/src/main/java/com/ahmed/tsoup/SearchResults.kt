@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,8 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,8 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -46,8 +41,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ahmed.tsoup.ui.theme.LightBlue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
+
 
 class SearchResults : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,30 +51,24 @@ class SearchResults : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TSOUPTheme {
-                val page = remember { mutableStateOf(false) }
-                Scaffold(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 35.dp),
-                    floatingActionButton = {
-                        PageSwitcher(page2 = page.value, switch = { page.value = !page.value })
-
-                    }) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 35.dp),
+                ) { innerPadding ->
 
                     val config = LocalConfiguration.current
                     val width = config.screenWidthDp
                     val height = config.screenHeightDp
-                    if (!page.value) Results(
-                        modifier = Modifier.padding(innerPadding),
-                        "https://1337x.to/search/${intent.getStringExtra("url").toString()}/1/",
-                        height = height.dp,
-                        width.dp, page = page.value
-                    )
-                    else Results(
-                        modifier = Modifier.padding(innerPadding),
-                        "https://1337x.to/search/${intent.getStringExtra("url").toString()}/2/",
-                        height = height.dp,
-                        width.dp, page = page.value
-                    )
+                    Column {
+                        Results(
+                            modifier = Modifier.padding(innerPadding),
+                            "https://1337x.to/search/${intent.getStringExtra("url").toString()}",
+                            height = height.dp,
+                            width.dp,
+                        )
+                    }
+
                 }
             }
         }
@@ -92,18 +82,22 @@ fun Results(
     url: String,
     height: Dp,
     width: Dp,
-    viewModel: TorrentItems = TorrentItems(),
-    page: Boolean
+    viewModel: TorrentItems = viewModel(),
 ) {
-    if (viewModel.torrentItems.isEmpty()) {
-        LaunchedEffect(Unit) {
-            viewModel.loadItems(url)
-        }
+    val items = viewModel.torrentItems
+
+
+    LaunchedEffect(url) {
+        viewModel.loadItems("$url/1/")
+    }
+    if (viewModel.torrentItems.size == 20) LaunchedEffect(url) {
+        viewModel.loadItems("$url/2/")
+    }
+    if (viewModel.torrentItems.size == 40) LaunchedEffect(url) {
+        viewModel.loadItems("$url/3/")
     }
 
-    val items = viewModel.torrentItems
     val isListEmpty = items.isEmpty()
-
 
     Column(
         modifier.fillMaxSize(),
@@ -112,7 +106,7 @@ fun Results(
     ) {
         if (isListEmpty) {
             Row {
-                Text("Loading ${if (!page) "page 1" else "page 2"} for ${url.slice(24..url.length - 4)}")
+                Text("Loading results for ${url.slice(24..url.length - 1)}")
                 Icon(
                     imageVector = Icons.Outlined.Refresh, null, Modifier.size(25.dp)
                 )
@@ -247,16 +241,5 @@ fun Results(
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun PageSwitcher(page2: Boolean = false, switch: () -> Unit) {
-    IconButton(onClick = switch, Modifier.background(LightBlue, MaterialTheme.shapes.extraLarge)) {
-        if (!page2) Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "next"
-        )
-        else Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
     }
 }
