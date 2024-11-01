@@ -235,7 +235,6 @@ fun Results(
                                             .rotate(-45f)
                                     )
                                 }
-
                                 Text(
                                     text = items[item].size.slice(0..items[item].size.length - 2),
                                     color = Color.Green

@@ -42,7 +42,7 @@ suspend fun getResults(url: String): Flow<TorrentVM> = flow {
                 for (item: Element in listItems) {
                     when (item.select("strong").text()) {
 
-                        "Total Size" -> currentItem.size = item.select("span").text()
+                        "Total size" -> currentItem.size = item.select("span").text()
                         "Seeders" -> currentItem.seeds = item.select("span").text().toInt()
                         "Leechers" -> currentItem.leeches = item.select("span").text().toInt()
 
