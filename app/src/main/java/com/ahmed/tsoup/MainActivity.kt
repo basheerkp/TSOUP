@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                 val prefs = context.getSharedPreferences("app_preferences", MODE_PRIVATE)
                 if (prefs.getBoolean("first_run", true)) {
                     setDefaultAddress(
-                        "https://torrentquest.com", prefs
+                        "https://cloudtorrents.com", prefs
                     )
                     saveAddress(
                         listOf(
