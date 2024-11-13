@@ -12,13 +12,12 @@ android {
 
     splits {
         abi {
-            isEnable = true
-            reset()
-            include("x86", "64", "armeabi-v7a", "arm64-v8a")
-            isUniversalApk = false
+            isEnable = true // Enables ABI splits
+            reset() // Clears any previously specified ABIs
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64") // Select ABIs to include
+            isUniversalApk = false // Set to true to generate a universal APK (optional)
         }
     }
-
     defaultConfig {
         applicationId = "com.ahmed.tsoup"
         minSdk = 30
@@ -30,8 +29,6 @@ android {
 
     buildTypes {
         release {
-            isShrinkResources = true
-            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
@@ -52,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.gson)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.core.x.x.x)
     implementation(libs.jsoup.jsoup)

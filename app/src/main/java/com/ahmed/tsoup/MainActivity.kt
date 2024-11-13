@@ -16,6 +16,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,6 +29,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,17 +46,51 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TSOUPTheme {
+                val context = LocalContext.current
+                val prefs = context.getSharedPreferences("app_preferences", MODE_PRIVATE)
+                if (prefs.getBoolean("first_run", true)) {
+                    setDefaultAddress(
+                        "https://torrentquest.com", prefs
+                    )
+                    saveAddress(
+                        listOf(
+                            "https://1337x.to",
+                            "https://bitsearch.to",
+                            "https://cloudtorrents.com",
+                            "https://knaben.eu",
+                            "https://torrentgalaxy.to",
+                            "https://torrentquest.com",
+                        ), context.getSharedPreferences("app_preferences", MODE_PRIVATE)
+                    )
+                    prefs.edit().putBoolean("first_run", false).apply()
+                }
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column {
+                    Column(
+                        horizontalAlignment = AbsoluteAlignment.Right,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                val intent = Intent(context, Settings::class.java)
+                                context.startActivity(intent)
+                            }, modifier = Modifier.size(75.dp)
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.List,
+                                null,
+                                modifier = Modifier.size(75.dp)
+                            )
+                        }
                         val urlOld = intent.getStringExtra("url")
                         TSoup()
+                        Spacer(Modifier.weight(1f))
+
                         SearchBar(
                             modifier = Modifier.padding(innerPadding),
-                            url = if (urlOld== null) "" else urlOld
+                            url = if (urlOld == null) "" else urlOld
                         )
-
+                        Spacer(Modifier.weight(1f))
                         UseClient()
-                        UseVPN()
                     }
                 }
             }
@@ -72,7 +112,6 @@ fun SearchBar(modifier: Modifier = Modifier, url: String) {
         TextButton(
             onClick = {
                 val intent = Intent(context, SearchResults::class.java)
-                url.value.replace(" ", "+")
                 intent.putExtra("url", url.value)
                 startActivity(context, intent, null)
             },
@@ -99,28 +138,6 @@ fun TSoup(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-fun UseVPN() {
-    val context = LocalContext.current
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("Use VPN or DNS for searching ")
-        TextButton(onClick = {
-            val intent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("https://play.google.com/store/apps/details?id=com.cloudflare.onedotonedotonedotone&hl=en_IN")
-            )
-            startActivity(context, intent, null)
-        }) {
-            Text(" ( WARP ) ")
-        }
-    }
-}
 
 @Composable
 fun UseClient() {

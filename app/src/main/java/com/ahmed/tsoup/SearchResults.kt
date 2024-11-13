@@ -56,19 +56,23 @@ class SearchResults : ComponentActivity() {
                         .fillMaxSize()
                         .padding(top = 35.dp),
                 ) { innerPadding ->
-
+                    val domain = getDefaultAddress(
+                        LocalContext.current.getSharedPreferences(
+                            "app_preferences", MODE_PRIVATE
+                        )
+                    )
                     val config = LocalConfiguration.current
                     val width = config.screenWidthDp
                     val height = config.screenHeightDp
                     Column {
                         Results(
                             modifier = Modifier.padding(innerPadding),
-                            "https://1337x.to/search/${intent.getStringExtra("url").toString()}",
+                            domain = domain!!,
                             height = height.dp,
                             width.dp,
+                            query = intent.getStringExtra("url").toString()
                         )
                     }
-
                 }
             }
         }
@@ -79,22 +83,27 @@ class SearchResults : ComponentActivity() {
 @Composable
 fun Results(
     modifier: Modifier,
-    url: String,
+    domain: String,
     height: Dp,
     width: Dp,
     viewModel: TorrentItems = viewModel(),
+    query: String
 ) {
+    var listSize = when (domain) {
+        "https://1337x.to" -> 20
+        "https://bitsearch.to" -> 20
+        "https://cloudtorrents.com" -> 50
+        "https://knaben.eu" -> 50
+        "https://torrentgalaxy.to" -> 50
+        "https://torrentquest.com" -> 40
+        else -> 0
+    }
+
     val items = viewModel.torrentItems
 
+    LaunchedEffect(items.size) {
+        if (items.isEmpty()) viewModel.loadItems(domain, query, listSize)
 
-    LaunchedEffect(url) {
-        viewModel.loadItems("$url/1/")
-    }
-    if (viewModel.torrentItems.size == 20) LaunchedEffect(url) {
-        viewModel.loadItems("$url/2/")
-    }
-    if (viewModel.torrentItems.size == 40) LaunchedEffect(url) {
-        viewModel.loadItems("$url/3/")
     }
 
     val isListEmpty = items.isEmpty()
@@ -106,7 +115,7 @@ fun Results(
     ) {
         if (isListEmpty) {
             Row {
-                Text("Loading results for ${url.slice(24..url.length - 1)}")
+                Text("Loading results for $query")
                 Icon(
                     imageVector = Icons.Outlined.Refresh, null, Modifier.size(25.dp)
                 )
@@ -127,23 +136,10 @@ fun Results(
                 TextButton(onClick = {
                     val intent = Intent(context, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    intent.putExtra("url", url.slice(24..url.length - 1))
+                    intent.putExtra("url", query)
                     context.startActivity(intent)
                 }) {
                     Text("Go Back")
-                }
-
-                TextButton(onClick = {
-                    val intent = Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://play.google.com/store/apps/details?id=com.cloudflare.onedotonedotonedotone")
-                    )
-                    Toast.makeText(
-                        context, "Opening warp on PlayStore", Toast.LENGTH_SHORT
-                    ).show()
-                    context.startActivity(intent)
-                }) {
-                    Text("Download WARP")
                 }
             }
         } else Column(
@@ -155,7 +151,7 @@ fun Results(
             val boxPadding = height * 0.01f
 
             Text(
-                "Showing ${items.size} results for ${url.slice(24..url.length - 4)}",
+                "Showing ${items.size} results for $query",
                 fontSize = 20.sp,
                 fontStyle = FontStyle.Italic
             )
@@ -194,7 +190,9 @@ fun Results(
                                 Row(
                                     horizontalArrangement = Arrangement.Start,
                                 ) {
-                                    Text(text = "Seeds: ${items[item].seeds}", color = Color.Green)
+                                    Text(
+                                        text = "Seeds: ${items[item].seeds}", color = Color.Green
+                                    )
 
                                     Spacer(Modifier.width(20.dp))
 
