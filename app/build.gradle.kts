@@ -35,12 +35,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
         }
-        debug {
-            isMinifyEnabled = true  // Enable minification
-            isShrinkResources = true  // Enable resource shrinking
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            )}
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

@@ -1,6 +1,6 @@
 package com.ahmed.tsoup
 
-import androidx.compose.runtime.mutableIntStateOf
+import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
@@ -11,160 +11,162 @@ import com.ahmed.tsoup.scrapers.getCloudTorrents
 import com.ahmed.tsoup.scrapers.getKnaben
 import com.ahmed.tsoup.scrapers.getTorrentGalaxy
 import com.ahmed.tsoup.scrapers.getTorrentQuest
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.text.BreakIterator
+import java.util.stream.Collector
+import kotlin.contracts.Returns
 
 data class TorrentVM(
     var title: String,
     var size: String,
-    var seeds: String,
-    var leeches: String,
+    var seeds: Int,
+    var leeches: Int,
     var uploader: String,
     var magnet: String,
     var date: String
 )
 
+
 class TorrentItems : ViewModel() {
     private val _torrentItems = mutableStateListOf<TorrentVM>()
     val torrentItems: SnapshotStateList<TorrentVM> = _torrentItems
-    val size = mutableIntStateOf(_torrentItems.size)
 
+    suspend fun loadItems(domains: List<String>, query: String) {
+        val comparator = compareByDescending<TorrentVM> { it.seeds }
+        coroutineScope {
+            val results = formatURL(domains, query)
 
-    fun loadItems(domain: String, query: String, domainSize: Int) {
-        viewModelScope.launch {
-            launch {
-                val result = formatURL(domain, query, 1)
-                when (domain) {
-                    "https://1337x.to" -> get1337x(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
+            domains.map { domain ->
+                async {
+                    when (domain) {
+                        "https://1337x.to" -> processDomain(
+                            results[domains.indexOf(domain)], ::get1337x, comparator
+                        )
 
-                    "https://torrentgalaxy.to" -> getTorrentGalaxy(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
+                        "https://bitsearch.to" -> processDomain(
+                            results[domains.indexOf(domain)], ::getBitSearch, comparator
+                        )
 
-                    "https://torrentquest.com" -> getTorrentQuest(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
+                        "https://cloudtorrents.com" -> processDomain(
+                            results[domains.indexOf(domain)], ::getCloudTorrents, comparator
+                        )
 
-                    "https://knaben.eu" -> getKnaben(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
+                        "https://knaben.eu" -> processDomain(
+                            results[domains.indexOf(domain)], ::getKnaben, comparator
+                        )
 
-                    "https://cloudtorrents.com" -> getCloudTorrents(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
+                        "https://torrentgalaxy.to" -> processDomain(
+                            results[domains.indexOf(domain)], ::getTorrentGalaxy, comparator
+                        )
 
-                    "https://bitsearch.to" -> getBitSearch(result).collect { item ->
-                        _torrentItems.add(item)
+                        "https://torrentquest.com" -> processDomain(
+                            results[domains.indexOf(domain)], ::getTorrentQuest, comparator
+                        )
                     }
                 }
-            }.join()
-            launch {
-                val result = formatURL(domain, query, 2)
-                when (domain) {
-                    "https://1337x.to" -> get1337x(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://torrentgalaxy.to" -> getTorrentGalaxy(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://torrentquest.com" -> getTorrentQuest(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://knaben.eu" -> getKnaben(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://cloudtorrents.com" -> getCloudTorrents(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://bitsearch.to" -> getBitSearch(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-                }
-            }.join()
-            launch {
-                val result = formatURL(domain, query, 3)
-                when (domain) {
-                    "https://1337x.to" -> get1337x(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://torrentgalaxy.to" -> getTorrentGalaxy(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://torrentquest.com" -> getTorrentQuest(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://knaben.eu" -> getKnaben(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://cloudtorrents.com" -> getCloudTorrents(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://bitsearch.to" -> getBitSearch(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-                }
-            }.join()
-            launch {
-                val result = formatURL(domain, query, 4)
-                when (domain) {
-                    "https://1337x.to" -> get1337x(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://torrentgalaxy.to" -> getTorrentGalaxy(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://torrentquest.com" -> getTorrentQuest(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://knaben.eu" -> getKnaben(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://cloudtorrents.com" -> getCloudTorrents(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-
-                    "https://bitsearch.to" -> getBitSearch(result).collect { item ->
-                        _torrentItems.add(item)
-                    }
-                }
-            }.join()
+            }
         }
     }
+
+    private suspend fun processDomain(
+        urls: List<String>,
+        collector: suspend (String) -> Flow<TorrentVM>,
+        comparator: Comparator<TorrentVM>
+    ) {
+        var exit = false
+        for (url in urls) {
+            collector(url).onEach { item ->
+                if (item.title == "None" && _torrentItems.isNotEmpty()) {
+                    exit = true
+                    return@onEach
+                }
+                if (_torrentItems.none { it.seeds == item.seeds && it.leeches == item.leeches && it.title == item.title && it.size == item.size }) addSorted(
+                    item, comparator
+                )
+            }.launchIn(viewModelScope)
+            if (exit) break
+        }
+        return
+    }
+
+    fun addSorted(item: TorrentVM, comparator: Comparator<TorrentVM>) {
+        val index = _torrentItems.binarySearch(item, comparator)
+        if (index < 0) {
+            if (_torrentItems.isEmpty()) _torrentItems.add(item)
+            else _torrentItems.add(-index - 1, item)
+        }
+    }
+
 }
 
-fun formatURL(domain: String, query: String, page: Int): String {
+fun formatURL(domains: List<String>, query: String): List<List<String>> {
+    val result = mutableListOf<List<String>>()
+    domains.forEach { domain ->
+        when (domain) {
 
+            "https://1337x.to" -> result.add(
+                listOf(
+                    "$domain/search/$query/1/",
+                    "$domain/search/$query/2/",
+                    "$domain/search/$query/3/",
+                    "$domain/search/$query/4/"
+                )
+            )
 
-    var query = when (domain) {
+            "https://torrentgalaxy.to" -> result.add(
+                listOf(
+                    "$domain/torrents.php?search=$query&sort=id&page=0&sort=seeders&order=desc",
+                    "$domain/torrents.php?search=$query&sort=id&page=1&sort=seeders&order=desc",
+                    "$domain/torrents.php?search=$query&sort=id&page=2&sort=seeders&order=desc",
+                    "$domain/torrents.php?search=$query&sort=id&page=3&sort=seeders&order=desc"
+                )
+            )
 
-        "https://1337x.to" -> "$domain/search/$query/$page/"
+            "https://torrentquest.com" -> result.add(
+                listOf(
+                    "$domain/${query[0]}/${query.replace(" ", "-")}/se/desc/1/",
+                    "$domain/${query[0]}/${query.replace(" ", "-")}/se/desc/2/",
+                    "$domain/${query[0]}/${query.replace(" ", "-")}/se/desc/3/",
+                    "$domain/${query[0]}/${query.replace(" ", "-")}/se/desc/4/"
+                )
+            )
 
-        "https://torrentgalaxy.to" -> "$domain/torrents.php?search=$query&sort=id&page=${page - 1}&sort=seeders&order=desc"
+            "https://knaben.eu" -> result.add(
+                listOf(
+                    "$domain/search/${query.replace(" ","%20")}/0/1/seeders",
+                    "$domain/search/${query.replace(" ","%20")}/0/2/seeders",
+                    "$domain/search/${query.replace(" ","%20")}/0/3/seeders",
+                    "$domain/search/${query.replace(" ","%20")}/0/4/seeders"
+                )
+            )
 
-        "https://torrentquest.com" -> "$domain/p/$query/se/desc/$page/"
+            "https://cloudtorrents.com" -> result.add(
+                listOf(
+                    "$domain/search?offset=0&query=$query&ordering=-se",
+                    "$domain/search?offset=50&query=$query&ordering=-se",
+                    "$domain/search?offset=100&query=$query&ordering=-se",
+                    "$domain/search?offset=150&query=$query&ordering=-se"
+                )
+            )
 
-        "https://knaben.eu" -> "$domain/search/$query/0/$page/seeders"
+            "https://bitsearch.to" -> result.add(
+                listOf(
+                    "$domain/search?q=$query&page=1&sort=seeders",
+                    "$domain/search?q=$query&page=2&sort=seeders",
+                    "$domain/search?q=$query&page=3&sort=seeders",
+                    "$domain/search?q=$query&page=4&sort=seeders"
+                )
+            )
 
-        "https://cloudtorrents.com" -> "$domain/search?offset=${(page - 1) * 50}&query=$query&ordering=-se"
-
-        "https://bitsearch.to" -> "$domain/search?q=$query&page=$page&sort=seeders"
-        else -> ""
+            else -> result.add(listOf(""))
+        }
     }
-    return query
+    return result
 }
 

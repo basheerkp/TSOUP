@@ -1,5 +1,6 @@
 package com.ahmed.tsoup
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -56,18 +59,15 @@ class SearchResults : ComponentActivity() {
                         .fillMaxSize()
                         .padding(top = 35.dp),
                 ) { innerPadding ->
-                    val domain = getDefaultAddress(
-                        LocalContext.current.getSharedPreferences(
-                            "app_preferences", MODE_PRIVATE
-                        )
-                    )
+                    val domain = "https://cloudtorrents.com"
+
                     val config = LocalConfiguration.current
                     val width = config.screenWidthDp
                     val height = config.screenHeightDp
                     Column {
                         Results(
                             modifier = Modifier.padding(innerPadding),
-                            domain = domain!!,
+                            domain = domain,
                             height = height.dp,
                             width.dp,
                             query = intent.getStringExtra("url").toString()
@@ -89,20 +89,15 @@ fun Results(
     viewModel: TorrentItems = viewModel(),
     query: String
 ) {
-    var listSize = when (domain) {
-        "https://1337x.to" -> 20
-        "https://bitsearch.to" -> 20
-        "https://cloudtorrents.com" -> 50
-        "https://knaben.eu" -> 50
-        "https://torrentgalaxy.to" -> 50
-        "https://torrentquest.com" -> 40
-        else -> 0
-    }
+    val context = LocalContext.current
+    val domains = loadAddress(context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE))
+    val domainList = remember { domains.filter { it.enabled }.map { it.domain } }
+
 
     val items = viewModel.torrentItems
 
-    LaunchedEffect(items.size) {
-        if (items.isEmpty()) viewModel.loadItems(domain, query, listSize)
+    LaunchedEffect(query, domainList) {
+        if (items.isEmpty()) viewModel.loadItems(domainList, query)
 
     }
 
@@ -161,9 +156,8 @@ fun Results(
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(items.size) { item ->
+                items(items) { item ->
                     val context = LocalContext.current
-
                     Box(
                         modifier = Modifier
                             .border(
@@ -183,7 +177,7 @@ fun Results(
 
                             Column(verticalArrangement = Arrangement.Center) {
 
-                                Text(items[item].title, Modifier.width(textWidth))
+                                Text(item.title, Modifier.width(textWidth))
 
                                 Spacer(Modifier.height(15.dp))
 
@@ -191,21 +185,21 @@ fun Results(
                                     horizontalArrangement = Arrangement.Start,
                                 ) {
                                     Text(
-                                        text = "Seeds: ${items[item].seeds}", color = Color.Green
+                                        text = "Seeds: ${item.seeds}", color = Color.Green
                                     )
 
                                     Spacer(Modifier.width(20.dp))
 
-                                    Text("Leeches: ${items[item].leeches}", color = Color.Red)
+                                    Text("Leeches: ${item.leeches}", color = Color.Red)
                                 }
                                 Spacer(Modifier.height(15.dp))
 
                                 Row {
-                                    Text(items[item].date, color = Color(0xFF5A9BD8))
+                                    Text(item.date, color = Color(0xFF5A9BD8))
 
-                                    Text(" BY ", color = Color.White)
+                                    Text(" From ", color = Color.White)
 
-                                    Text(items[item].uploader, color = Color(0xFF5A9BD8))
+                                    Text(item.uploader, color = Color(0xFF5A9BD8))
                                 }
                             }
                             Column(Modifier.fillMaxHeight(), Arrangement.Center) {
@@ -213,7 +207,7 @@ fun Results(
                                 IconButton(onClick = {
                                     try {
                                         val intent = Intent(
-                                            Intent.ACTION_VIEW, Uri.parse(items[item].magnet)
+                                            Intent.ACTION_VIEW, Uri.parse(item.magnet)
                                         )
                                         context.startActivity(intent)
                                     } catch (e: Exception) {
@@ -234,7 +228,7 @@ fun Results(
                                     )
                                 }
                                 Text(
-                                    text = items[item].size.slice(0..items[item].size.length - 2),
+                                    text = item.size.slice(0..item.size.length - 2),
                                     color = Color.Green
                                 )
                             }

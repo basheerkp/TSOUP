@@ -25,21 +25,22 @@ fun getCloudTorrents(url: String): Flow<TorrentVM> = flow {
         sslContext.init(
             null, arrayOf<TrustManager>(trustAllCertificates), java.security.SecureRandom()
         )
-        val doc: Document = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(15000)
+        val doc: Document = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(5000)
             .sslSocketFactory(sslContext.socketFactory).get()
         println(url)
         var links = doc.select("tr")
         links.removeAt(0)
         if (links.first()?.text()
                 ?.contains("Your query returned no torrents.") == true && doc.text().isNotEmpty()
-        ) emit(TorrentVM("None", "", "0", "0", "", "", ""))
+        ) emit(TorrentVM("None", "", 0, 0, "", "", ""))
+
         links.forEach { link ->
             val currentItem = TorrentVM(
                 title = link.select("td")[0].text(),
                 size = link.select("td")[1].text(),
-                seeds = link.select("td")[3].text(),
-                leeches = link.select("td")[4].text(),
-                uploader = link.select("td")[6].text(),
+                seeds = link.select("td")[3].text().toInt(),
+                leeches = link.select("td")[4].text().toInt(),
+                uploader = "CloudTorrents",
                 magnet = link.select("a[href^=magnet]").attr("href"),
                 date = link.select("td")[2].text()
             )
@@ -48,6 +49,6 @@ fun getCloudTorrents(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", "0", "0", "", "", ""))
+        emit(TorrentVM("None", "", 0, 0, "", "", ""))
     }
 }.flowOn(Dispatchers.IO)

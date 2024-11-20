@@ -1,7 +1,6 @@
 package com.ahmed.tsoup
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -13,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,15 +24,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ahmed.tsoup.ui.theme.DarkSlateGray
 import com.ahmed.tsoup.ui.theme.LightBlue
 import com.ahmed.tsoup.ui.theme.LightGreen
+import com.ahmed.tsoup.ui.theme.Red
+import com.ahmed.tsoup.ui.theme.RoyalBlue
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
+import com.ahmed.tsoup.ui.theme.Yellow
 import kotlin.text.slice
 
 
@@ -43,12 +49,14 @@ class Settings : ComponentActivity() {
         setContent {
             TSOUPTheme {
                 Scaffold() { innerPadding ->
-                    Column(
-                        modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center
-                    ) {
-                        UseVPN()
-                        SetDomain(modifier = Modifier.padding(innerPadding))
 
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        EnableHint()
+                        SetDomain(modifier = Modifier.padding(innerPadding))
                     }
                 }
             }
@@ -59,107 +67,108 @@ class Settings : ComponentActivity() {
 @Composable
 fun SetDomain(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var listItems =
-        loadAddress(context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE))
-    var default = getDefaultAddress(
+    var listItems = loadAddress(
         context.getSharedPreferences(
             "app_preferences", Context.MODE_PRIVATE
         )
-    )
+    ).toMutableStateList()
     Column(
         modifier.padding(16.dp), verticalArrangement = Arrangement.Center
     ) {
-        CustomRow(listItems.slice(0..2), default!!, modifier.fillMaxWidth())
-        CustomRow(listItems.slice(3..5), default, Modifier.fillMaxWidth())
+        val firstHalf = listItems.slice(0..2)
+        val secondHalf = listItems.slice(3..5)
+        CustomRow(
+            firstHalf, modifier.fillMaxWidth()
+        ) { item, position ->
+            listItems[position] = item
+            saveAddress(
+                listItems.toList(),
+                context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+            )
+        }
+        CustomRow(
+            secondHalf, Modifier.fillMaxWidth()
+        ) { item, position ->
+            listItems[position + 3] = item
+            saveAddress(
+                listItems.toList(),
+                context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+            )
+        }
     }
 }
 
 @Composable
-fun UseVPN() {
-    Column(
-        Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Use VPN or DNS for blocked domains (domains in blue)")
-    }
-}
-
-@Composable
-fun CustomRow(listItems: List<String>, default: String, modifier: Modifier = Modifier) {
+fun CustomRow(
+    listItems: List<DomainItem>,
+    modifier: Modifier = Modifier,
+    saveAddress: (domain: DomainItem, position: Int) -> Unit
+) {
     val context = LocalContext.current
     LazyRow(modifier, horizontalArrangement = Arrangement.SpaceBetween) {
-        items(listItems) { domain ->
-            val size = when (domain) {
-                "https://1337x.to" -> 20
-                "https://torrentgalaxy.to" -> 50
-                "https://torrentquest.com" -> 40
-                "https://knaben.eu" -> 50
-                "https://cloudtorrents.com" -> 50
-                "https://bitsearch.to" -> 20
-                else -> 0
-            }
-            val color = when (domain) {
-                "https://1337x.to" -> LightBlue
-                "https://torrentgalaxy.to" -> LightBlue
-                "https://torrentquest.com" -> LightGreen
-                "https://knaben.eu" -> LightBlue
-                "https://cloudtorrents.com" -> LightGreen
-                "https://bitsearch.to" -> LightGreen
-                else -> Color.Transparent
-            }
-            val isDefault = domain == default
+        items(listItems) { item ->
+            val name = item.domain
+            val enabled = item.enabled
+            val size = item.querySize
+
+            val boxColor = if (enabled) LightGreen else LightBlue
+            val textColor = if (enabled) DarkSlateGray else RoyalBlue
+            val borderColor = if (enabled) Color.White else Color.Black
+
             Box(modifier = Modifier
                 .width(LocalConfiguration.current.screenWidthDp.dp / 3.3f)
                 .height(125.dp)
                 .background(
-                    color = if (isDefault) Color.Transparent else color,
+                    color = boxColor,
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
                 )
-                .clickable(!isDefault) {
-                    setDefaultAddress(
-                        domain, context.getSharedPreferences(
-                            "app_preferences", Context.MODE_PRIVATE
-                        )
-                    )
+                .clickable(true) {
                     Toast
                         .makeText(
-                            context, "default Domain is ${
-                                domain
-                                    .slice(8..domain.length - 1)
+                            context, if (enabled) "disabled ${
+                                name
+                                    .slice(8..name.length - 1)
+                                    .split(".")[0].uppercase()
+                            }" else "enabled ${
+                                name
+                                    .slice(8..name.length - 1)
                                     .split(".")[0].uppercase()
                             }", Toast.LENGTH_SHORT
                         )
                         .show()
-                    context.startActivity(
-                        Intent(
-                            context, MainActivity::class.java
-                        ).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    saveAddress(
+                        DomainItem(name, !enabled, size), listItems.indexOf(item)
                     )
                 }
                 .border(
-                    1.dp, Color.White, androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
-                ), contentAlignment = Alignment.Center) {
+                    1.dp, borderColor, androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
+                )
+                .padding(8.dp), contentAlignment = Alignment.Center) {
                 Text(
-                    domain.slice(8..domain.length - 1).split(".")[0].uppercase(),
-                    color = if (isDefault) Color.White else Color.Black
+                    name.slice(8..name.length - 1).split(".")[0].uppercase(),
+                    color = textColor,
+                    textAlign = TextAlign.Center
                 )
                 Box(
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .border(
-                            1.dp, Color.White, MaterialTheme.shapes.large
-                        )
                         .width(40.dp)
-                        .height(40.dp)
-                        .background(Color.White, MaterialTheme.shapes.large),
+                        .height(40.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        size.toString(), color = Color.Black
+                        size.toString(), color = textColor
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun EnableHint() {
+    Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+        Text("Enabled", color = LightGreen)
+        Text("Disabled", color = LightBlue)
     }
 }

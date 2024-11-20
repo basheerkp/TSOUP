@@ -17,3 +17,6 @@ val LightBlue = Color(0xFFADD8E6)
 val grey = Color(0xFF808080)
 
 val LightGreen = Color(0xFF90EE90)
+
+val RoyalBlue = Color(0xFF4169E1)
+val DarkSlateGray = Color(0xFF2F4F4F)

@@ -49,17 +49,14 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val prefs = context.getSharedPreferences("app_preferences", MODE_PRIVATE)
                 if (prefs.getBoolean("first_run", true)) {
-                    setDefaultAddress(
-                        "https://cloudtorrents.com", prefs
-                    )
                     saveAddress(
                         listOf(
-                            "https://1337x.to",
-                            "https://bitsearch.to",
-                            "https://cloudtorrents.com",
-                            "https://knaben.eu",
-                            "https://torrentgalaxy.to",
-                            "https://torrentquest.com",
+                            DomainItem("https://1337x.to", true, 20),
+                            DomainItem("https://bitsearch.to", true, 20),
+                            DomainItem("https://cloudtorrents.com", true, 50),
+                            DomainItem("https://knaben.eu", true, 50),
+                            DomainItem("https://torrentgalaxy.to", true, 50),
+                            DomainItem("https://torrentquest.com", true, 40),
                         ), context.getSharedPreferences("app_preferences", MODE_PRIVATE)
                     )
                     prefs.edit().putBoolean("first_run", false).apply()
@@ -67,13 +64,14 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(
                         horizontalAlignment = AbsoluteAlignment.Right,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         IconButton(
                             onClick = {
                                 val intent = Intent(context, Settings::class.java)
                                 context.startActivity(intent)
-                            }, modifier = Modifier.size(75.dp)
+                            }, modifier = Modifier.size(45.dp)
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.List,
@@ -103,7 +101,7 @@ fun SearchBar(modifier: Modifier = Modifier, url: String) {
     val context = LocalContext.current
     var url = remember { mutableStateOf(url) }
     Column(
-        Modifier.fillMaxWidth(),
+        modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -129,7 +127,7 @@ fun TSoup(modifier: Modifier = Modifier) {
     Row(
         Modifier
             .fillMaxWidth()
-            .height(350.dp),
+            .height(250.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
