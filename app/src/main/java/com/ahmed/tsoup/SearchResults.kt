@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
 
-
 class SearchResults : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,8 +114,7 @@ fun Results(
                     imageVector = Icons.Outlined.Refresh, null, Modifier.size(25.dp)
                 )
             }
-
-        } else if (items[0].title == "None") {
+        } else if (items.size == 6 && items[1].title == "None" && items[2].title == "None" && items[3].title == "None" && items[4].title == "None" && items[5].title == "None" && items[0].title == "None") {
             val context = LocalContext.current
 
             Toast.makeText(

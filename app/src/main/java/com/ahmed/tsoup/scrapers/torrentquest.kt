@@ -18,7 +18,7 @@ fun getTorrentQuest(url: String): Flow<TorrentVM> = flow {
         println("running scraper")
         if (doc.select("td").isEmpty() && doc.text().isNotEmpty()) emit(
             TorrentVM(
-                "None", "", 0, 0, "", "", ""
+                "None", "", 0, 0, "6", "", ""
             )
         )
         if (links.size > 2)
@@ -41,10 +41,10 @@ fun getTorrentQuest(url: String): Flow<TorrentVM> = flow {
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        emit(TorrentVM("None", "", 0, 0, "6", "", ""))
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        emit(TorrentVM("None", "", 0, 0, "6", "", ""))
     }
 }.flowOn(Dispatchers.IO)

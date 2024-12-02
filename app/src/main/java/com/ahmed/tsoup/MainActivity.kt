@@ -1,7 +1,8 @@
 package com.ahmed.tsoup
 
+import android.annotation.SuppressLint
+import android.app.appsearch.SearchResults
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,8 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,11 +37,11 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
-import com.ahmed.tsoup.ui.theme.Green
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
 
 class MainActivity : ComponentActivity() {
@@ -81,14 +85,15 @@ class MainActivity : ComponentActivity() {
                         }
                         val urlOld = intent.getStringExtra("url")
                         TSoup()
+                        Row(
+                            Modifier.fillMaxWidth(),
+                        ) {
+                            SearchBar(
+                                modifier = Modifier.padding(innerPadding),
+                                url = if (urlOld == null) "" else urlOld
+                            )
+                        }
                         Spacer(Modifier.weight(1f))
-
-                        SearchBar(
-                            modifier = Modifier.padding(innerPadding),
-                            url = if (urlOld == null) "" else urlOld
-                        )
-                        Spacer(Modifier.weight(1f))
-                        UseClient()
                     }
                 }
             }
@@ -96,6 +101,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun SearchBar(modifier: Modifier = Modifier, url: String) {
     val context = LocalContext.current
@@ -105,7 +111,10 @@ fun SearchBar(modifier: Modifier = Modifier, url: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextField(value = url.value, onValueChange = { url.value = it }, singleLine = true)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            TextField(value = url.value, onValueChange = { url.value = it }, singleLine = true)
+            SetSorter(Modifier.wrapContentWidth())
+        }
         Spacer(Modifier.height(25.dp))
         TextButton(
             onClick = {
@@ -136,37 +145,15 @@ fun TSoup(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
-fun UseClient() {
-    val context = LocalContext.current
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+fun SetSorter(modifier: Modifier) {
+    val expanded = remember { mutableStateOf(true) }
+    DropdownMenu(
+        expanded.value,
+        onDismissRequest = { expanded.value = !expanded.value }, modifier
     ) {
-        Text("Use one of these clients")
-        Row {
-            TextButton(onClick = {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=idm.internet.download.manager&hl=en_IN")
-                )
-                startActivity(context, intent, null)
-            }) {
-                Text("  1DM  ")
-            }
-            TextButton(onClick = {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=org.proninyaroslav.libretorrent&hl=en_IN")
-                )
-                startActivity(context, intent, null)
-            }) {
-                Text("  LibTorrent  ")
-            }
-        }
+        DropdownMenuItem({ Text("Seeds") }, { expanded.value = !expanded.value })
+        DropdownMenuItem({ Text("Leeches") }, { expanded.value = !expanded.value })
+        DropdownMenuItem({ Text("Size") }, { expanded.value = !expanded.value })
     }
 }

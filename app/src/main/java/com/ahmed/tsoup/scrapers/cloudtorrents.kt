@@ -32,7 +32,7 @@ fun getCloudTorrents(url: String): Flow<TorrentVM> = flow {
         links.removeAt(0)
         if (links.first()?.text()
                 ?.contains("Your query returned no torrents.") == true && doc.text().isNotEmpty()
-        ) emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        ) emit(TorrentVM("None", "", 0, 0, "4", "", ""))
 
         links.forEach { link ->
             val currentItem = TorrentVM(
@@ -49,6 +49,6 @@ fun getCloudTorrents(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        emit(TorrentVM("None", "", 0, 0, "4", "", ""))
     }
 }.flowOn(Dispatchers.IO)

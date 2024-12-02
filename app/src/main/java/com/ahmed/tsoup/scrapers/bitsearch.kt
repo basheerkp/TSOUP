@@ -19,7 +19,7 @@ fun getBitSearch(url: String): Flow<TorrentVM> = flow {
 
         if (doc.select("li").isEmpty() && doc.text().isNotEmpty()) emit(
             TorrentVM(
-                "None", "", 0, 0, "", "", ""
+                "None", "", 0, 0, "2", "", ""
             )
         )
 
@@ -59,7 +59,7 @@ fun getBitSearch(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        emit(TorrentVM("None", "2", 0, 0, "", "", ""))
 
     }
 }.flowOn(Dispatchers.IO)

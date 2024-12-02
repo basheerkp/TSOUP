@@ -19,7 +19,7 @@ fun getKnaben(url: String): Flow<TorrentVM> = flow {
         println("running scraper")
         if (doc.select("td").isEmpty() && doc.text().isNotEmpty()) emit(
             TorrentVM(
-                "None", "", 0, 0, "", "", ""
+                "None", "", 0, 0, "3", "", ""
             )
         )
 
@@ -38,6 +38,6 @@ fun getKnaben(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        emit(TorrentVM("None", "3", 0, 0, "", "", ""))
     }
 }.flowOn(Dispatchers.IO)

@@ -17,7 +17,7 @@ fun get1337x(url: String): Flow<TorrentVM> = flow {
         var links = doc.select("a[href^=/torrent]")
         println("running scraper")
         if (doc.select("td").isEmpty() && doc.text().isNotEmpty())
-            emit(TorrentVM("None", "", 0, 0, "", "", ""))
+            emit(TorrentVM("None", "", 0, 0, "1", "", ""))
         links.forEach { link ->
             val currentItem = TorrentVM(
                 title = link.text(),
@@ -58,7 +58,7 @@ fun get1337x(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        emit(TorrentVM("None", "", 0, 0, "1", "", ""))
 
     }
 }.flowOn(Dispatchers.IO)

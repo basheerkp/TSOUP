@@ -16,7 +16,7 @@ fun getTorrentGalaxy(url: String): Flow<TorrentVM> = flow {
         var links = doc.select("div.tgxtablerow")
         println(links)
         if (links.isEmpty() && doc.text().isNotEmpty())
-            emit(TorrentVM("None", "", 0, 0, "", "", ""))
+            emit(TorrentVM("None", "", 0, 0, "5", "", ""))
 
 
         links.forEach { link ->
@@ -38,6 +38,6 @@ fun getTorrentGalaxy(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "", "", ""))
+        emit(TorrentVM("None", "", 0, 0, "5", "", ""))
     }
 }.flowOn(Dispatchers.IO)
