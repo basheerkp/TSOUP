@@ -2,6 +2,7 @@ package com.ahmed.tsoup.scrapers
 
 
 import com.ahmed.tsoup.TorrentVM
+import com.ahmed.tsoup.sizeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,18 +19,16 @@ fun getTorrentQuest(url: String): Flow<TorrentVM> = flow {
         println("running scraper")
         if (doc.select("td").isEmpty() && doc.text().isNotEmpty()) emit(
             TorrentVM(
-                "None", "", 0, 0, "6", "", ""
+                "None", 0f, 0, 0, "6", "", ""
             )
         )
-        if (links.size > 2)
-            links.removeAt(links.size - 2)
-        else
-            return@flow
+        if (links.size > 2) links.removeAt(links.size - 2)
+        else return@flow
         links.forEach { link ->
             if (link.select("td").text().isNotEmpty()) {
                 val currentItem = TorrentVM(
                     title = link.select("td").text(),
-                    size = link.select("td")[5].text(),
+                    size = sizeFormatter(link.select("td")[5].text()),
                     seeds = link.select("td")[6].text().toInt(),
                     leeches = link.select("td")[7].text().toInt(),
                     uploader = "TorrentQuest",
@@ -41,10 +40,11 @@ fun getTorrentQuest(url: String): Flow<TorrentVM> = flow {
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "6", "", ""))
+        emit(TorrentVM("None", 0f, 0, 0, "6", "", ""))
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "6", "", ""))
+        emit(TorrentVM("None", 0f, 0, 0, "6", "", ""))
     }
 }.flowOn(Dispatchers.IO)
+

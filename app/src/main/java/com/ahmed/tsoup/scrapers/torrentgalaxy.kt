@@ -2,6 +2,7 @@ package com.ahmed.tsoup.scrapers
 
 
 import com.ahmed.tsoup.TorrentVM
+import com.ahmed.tsoup.sizeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -16,7 +17,7 @@ fun getTorrentGalaxy(url: String): Flow<TorrentVM> = flow {
         var links = doc.select("div.tgxtablerow")
         println(links)
         if (links.isEmpty() && doc.text().isNotEmpty())
-            emit(TorrentVM("None", "", 0, 0, "5", "", ""))
+            emit(TorrentVM("None", 0f, 0, 0, "5", "", ""))
 
 
         links.forEach { link ->
@@ -25,7 +26,7 @@ fun getTorrentGalaxy(url: String): Flow<TorrentVM> = flow {
 
                 val currentItem = TorrentVM(
                     title = link.select("a[href^=/torrent/]").text(),
-                    size = link.select("td")[2].text(),
+                    size = sizeFormatter(link.select("td")[2].text()),
                     seeds = health.first().slice(8..health.first().length - 1).toInt(),
                     leeches = health[1].slice(0..health[1].length - 2).toInt(),
                     uploader = "TorrentGalaxy",
@@ -38,6 +39,7 @@ fun getTorrentGalaxy(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "5", "", ""))
+        emit(TorrentVM("None", 0f, 0, 0, "5", "", ""))
     }
 }.flowOn(Dispatchers.IO)
+

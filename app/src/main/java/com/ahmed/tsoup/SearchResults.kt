@@ -69,7 +69,7 @@ class SearchResults : ComponentActivity() {
                             domain = domain,
                             height = height.dp,
                             width.dp,
-                            query = intent.getStringExtra("url").toString()
+                            query = intent.getStringExtra("url").toString(),
                         )
                     }
                 }
@@ -96,8 +96,7 @@ fun Results(
     val items = viewModel.torrentItems
 
     LaunchedEffect(query, domainList) {
-        if (items.isEmpty()) viewModel.loadItems(domainList, query)
-
+        if (items.isEmpty()) viewModel.loadItems(domainList, query, context)
     }
 
     val isListEmpty = items.isEmpty()
@@ -154,9 +153,10 @@ fun Results(
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(items) { item ->
+                items(items, key = null) { item ->
                     val context = LocalContext.current
-                    Box(
+                    if (item.title == "None")
+                    else Box(
                         modifier = Modifier
                             .border(
                                 width = 1.dp,
@@ -167,7 +167,6 @@ fun Results(
                             .width(boxWidth),
                         contentAlignment = Alignment.Center
                     ) {
-
                         Row(
                             horizontalArrangement = Arrangement.Absolute.Center,
                             verticalAlignment = Alignment.CenterVertically
@@ -226,7 +225,9 @@ fun Results(
                                     )
                                 }
                                 Text(
-                                    text = item.size.slice(0..item.size.length - 2),
+                                    text = if ((item.size / 1024) < 1f) item.size.toString() + " K"
+                                    else if (((item.size / 1024) / 1024) < 1f) (item.size / 1024).toString() + " M"
+                                    else ((item.size / 1024) / 1024).toString() + " G",
                                     color = Color.Green
                                 )
                             }

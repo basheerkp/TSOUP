@@ -2,6 +2,7 @@ package com.ahmed.tsoup.scrapers
 
 
 import com.ahmed.tsoup.TorrentVM
+import com.ahmed.tsoup.sizeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,14 +20,14 @@ fun getKnaben(url: String): Flow<TorrentVM> = flow {
         println("running scraper")
         if (doc.select("td").isEmpty() && doc.text().isNotEmpty()) emit(
             TorrentVM(
-                "None", "", 0, 0, "3", "", ""
+                "None", 0f, 0, 0, "3", "", ""
             )
         )
 
         links.forEach { link ->
             val currentItem = TorrentVM(
                 title = link.select("a").text(),
-                size = link.select("td")[2].text(),
+                size = sizeFormatter(link.select("td")[2].text()),
                 seeds = link.select("td")[4].text().toInt(),
                 leeches = link.select("td")[5].text().toInt(),
                 uploader = "Knaben",
@@ -38,6 +39,6 @@ fun getKnaben(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "3", 0, 0, "", "", ""))
+        emit(TorrentVM("None", 0f, 0, 0, "", "", ""))
     }
 }.flowOn(Dispatchers.IO)

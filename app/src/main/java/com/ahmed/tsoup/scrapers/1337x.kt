@@ -1,6 +1,7 @@
 package com.ahmed.tsoup.scrapers
 
 import com.ahmed.tsoup.TorrentVM
+import com.ahmed.tsoup.sizeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -16,12 +17,15 @@ fun get1337x(url: String): Flow<TorrentVM> = flow {
         val doc: Document = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(5000).get()
         var links = doc.select("a[href^=/torrent]")
         println("running scraper")
-        if (doc.select("td").isEmpty() && doc.text().isNotEmpty())
-            emit(TorrentVM("None", "", 0, 0, "1", "", ""))
+        if (doc.select("td").isEmpty() && doc.text().isNotEmpty()) emit(
+            TorrentVM(
+                "None", 0f, 0, 0, "1", "", ""
+            )
+        )
         links.forEach { link ->
             val currentItem = TorrentVM(
                 title = link.text(),
-                size = "",
+                size = 0f,
                 seeds = 0,
                 leeches = 0,
                 uploader = "",
@@ -42,7 +46,7 @@ fun get1337x(url: String): Flow<TorrentVM> = flow {
                 for (item: Element in listItems) {
                     when (item.select("strong").text()) {
 
-                        "Total size" -> currentItem.size = item.select("span").text()
+                        "Total size" -> currentItem.size = sizeFormatter(item.select("span").text())
                         "Seeders" -> currentItem.seeds = item.select("span").text().toInt()
                         "Leechers" -> currentItem.leeches = item.select("span").text().toInt()
 
@@ -58,7 +62,7 @@ fun get1337x(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "1", "", ""))
+        emit(TorrentVM("None", 0f, 0, 0, "1", "", ""))
 
     }
 }.flowOn(Dispatchers.IO)

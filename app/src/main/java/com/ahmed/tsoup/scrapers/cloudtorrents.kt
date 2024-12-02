@@ -2,6 +2,7 @@ package com.ahmed.tsoup.scrapers
 
 
 import com.ahmed.tsoup.TorrentVM
+import com.ahmed.tsoup.sizeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -32,12 +33,12 @@ fun getCloudTorrents(url: String): Flow<TorrentVM> = flow {
         links.removeAt(0)
         if (links.first()?.text()
                 ?.contains("Your query returned no torrents.") == true && doc.text().isNotEmpty()
-        ) emit(TorrentVM("None", "", 0, 0, "4", "", ""))
+        ) emit(TorrentVM("None", 0f, 0, 0, "4", "", ""))
 
         links.forEach { link ->
             val currentItem = TorrentVM(
                 title = link.select("td")[0].text(),
-                size = link.select("td")[1].text(),
+                size = sizeFormatter(link.select("td")[1].text()),
                 seeds = link.select("td")[3].text().toInt(),
                 leeches = link.select("td")[4].text().toInt(),
                 uploader = "CloudTorrents",
@@ -49,6 +50,6 @@ fun getCloudTorrents(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "", 0, 0, "4", "", ""))
+        emit(TorrentVM("None", 0f, 0, 0, "4", "", ""))
     }
 }.flowOn(Dispatchers.IO)

@@ -2,6 +2,7 @@ package com.ahmed.tsoup.scrapers
 
 
 import com.ahmed.tsoup.TorrentVM
+import com.ahmed.tsoup.sizeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,7 +20,7 @@ fun getBitSearch(url: String): Flow<TorrentVM> = flow {
 
         if (doc.select("li").isEmpty() && doc.text().isNotEmpty()) emit(
             TorrentVM(
-                "None", "", 0, 0, "2", "", ""
+                "None", 0f, 0, 0, "2", "", ""
             )
         )
 
@@ -33,7 +34,7 @@ fun getBitSearch(url: String): Flow<TorrentVM> = flow {
 
             val currentItem = TorrentVM(
                 title = link.select("h5").text(),
-                size = (stats.select("div:has(img[alt=Size])").text().split(" ")
+                size = sizeFormatter(stats.select("div:has(img[alt=Size])").text().split(" ")
                     .getOrNull(1) + stats.select("div:has(img[alt=Size])").text().split(" ")
                     .getOrNull(2)),
                 seeds = 0,
@@ -59,7 +60,7 @@ fun getBitSearch(url: String): Flow<TorrentVM> = flow {
 
     } catch (e: Exception) {
         e.printStackTrace()
-        emit(TorrentVM("None", "2", 0, 0, "", "", ""))
+        emit(TorrentVM("None", 0f, 0, 0, "", "", ""))
 
     }
 }.flowOn(Dispatchers.IO)

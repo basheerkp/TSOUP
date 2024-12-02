@@ -1,13 +1,14 @@
 package com.ahmed.tsoup
 
 import android.annotation.SuppressLint
-import android.app.appsearch.SearchResults
+import com.ahmed.tsoup.SearchResults
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,9 +19,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -38,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -111,22 +116,27 @@ fun SearchBar(modifier: Modifier = Modifier, url: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            TextField(value = url.value, onValueChange = { url.value = it }, singleLine = true)
-            SetSorter(Modifier.wrapContentWidth())
-        }
+        TextField(value = url.value, onValueChange = { url.value = it }, singleLine = true)
+
         Spacer(Modifier.height(25.dp))
-        TextButton(
-            onClick = {
-                val intent = Intent(context, SearchResults::class.java)
-                intent.putExtra("url", url.value)
-                startActivity(context, intent, null)
-            },
-            Modifier
-                .background(shape = MaterialTheme.shapes.extraLarge, color = Color.Gray)
-                .defaultMinSize(155.dp, 45.dp),
-            enabled = url.value.length > 2
-        ) { Text("Search") }
+        Row(
+            Modifier,
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(
+                onClick = {
+                    val intent = Intent(context, SearchResults::class.java)
+                    intent.putExtra("url", url.value)
+                    startActivity(context, intent, null)
+                },
+                Modifier
+                    .background(shape = MaterialTheme.shapes.extraLarge, color = Color.Gray)
+                    .defaultMinSize(155.dp, 45.dp),
+                enabled = url.value.length > 2
+            ) { Text("Search") }
+        }
+        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -142,18 +152,5 @@ fun TSoup(modifier: Modifier = Modifier) {
     ) {
         Text("T", color = Green, fontSize = 45.sp)
         Text(" - SOUP", fontSize = 45.sp)
-    }
-}
-
-@Composable
-fun SetSorter(modifier: Modifier) {
-    val expanded = remember { mutableStateOf(true) }
-    DropdownMenu(
-        expanded.value,
-        onDismissRequest = { expanded.value = !expanded.value }, modifier
-    ) {
-        DropdownMenuItem({ Text("Seeds") }, { expanded.value = !expanded.value })
-        DropdownMenuItem({ Text("Leeches") }, { expanded.value = !expanded.value })
-        DropdownMenuItem({ Text("Size") }, { expanded.value = !expanded.value })
     }
 }

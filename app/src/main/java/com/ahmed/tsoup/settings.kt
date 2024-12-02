@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,10 +21,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,10 +44,8 @@ import androidx.compose.ui.unit.dp
 import com.ahmed.tsoup.ui.theme.DarkSlateGray
 import com.ahmed.tsoup.ui.theme.LightBlue
 import com.ahmed.tsoup.ui.theme.LightGreen
-import com.ahmed.tsoup.ui.theme.Red
 import com.ahmed.tsoup.ui.theme.RoyalBlue
 import com.ahmed.tsoup.ui.theme.TSOUPTheme
-import com.ahmed.tsoup.ui.theme.Yellow
 import kotlin.text.slice
 
 
@@ -55,6 +62,8 @@ class Settings : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        SetSorter(Modifier)
+                        Spacer(Modifier.height(64.dp))
                         EnableHint()
                         SetDomain(modifier = Modifier.padding(innerPadding))
                     }
@@ -141,7 +150,9 @@ fun CustomRow(
                     )
                 }
                 .border(
-                    1.dp, borderColor, androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
+                    1.dp,
+                    borderColor,
+                    androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
                 )
                 .padding(8.dp), contentAlignment = Alignment.Center) {
                 Text(
@@ -170,5 +181,52 @@ fun EnableHint() {
     Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
         Text("Enabled", color = LightGreen)
         Text("Disabled", color = LightBlue)
+    }
+}
+
+
+@Composable
+fun SetSorter(modifier: Modifier) {
+    val context = LocalContext.current
+    val prefs = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+    val expanded = remember { mutableStateOf(false) }
+    val text = remember { mutableStateOf(prefs.getString("sorter", "Seeds")) }
+    Column {
+        TextButton(
+            onClick = { expanded.value = !expanded.value },
+        ) { Text("Sort by : ${text.value}") }
+
+        DropdownMenu(
+            expanded.value, onDismissRequest = { expanded.value = !expanded.value }, modifier
+        ) {
+            DropdownMenuItem({ Text("Seeds") }, {
+                prefs.edit().putString("sorter", "Seeds").apply()
+                expanded.value = !expanded.value
+                text.value = "Seeds"
+            })
+            DropdownMenuItem({ Text("Leeches") }, {
+                prefs.edit().putString("sorter", "Leeches").apply()
+                text.value = "Leeches"
+                expanded.value = !expanded.value
+            })
+            DropdownMenuItem({
+                Row {
+                    Text("Size desc")
+                    Icon(imageVector = Icons.Filled.KeyboardArrowDown, null)
+                }
+            }, onClick = {
+                prefs.edit().putString("sorter", "Sizedesc").apply()
+                text.value = "Size desc"
+            })
+            DropdownMenuItem({
+                Row {
+                    Text("Size asc")
+                    Icon(imageVector = Icons.Filled.KeyboardArrowUp, null)
+                }
+            }, onClick = {
+                prefs.edit().putString("sorter", "Sizeasc").apply()
+                text.value = "Size asc"
+            })
+        }
     }
 }
